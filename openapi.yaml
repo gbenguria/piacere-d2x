@@ -1,0 +1,49 @@
+openapi: 3.0.0
+info:
+  title: Doml to Domlx converter API
+  description: It converts doml to domlx format and domlx to doml format
+  version: 0.1.9
+servers:
+  - url: https://ci.piacere.digital.tecnalia.dev
+    description: Integration server
+  - url: http://d2x.192.168.56.1.nip.io/v1
+    description: local vagrant server
+  - url: http://d2x.localhost:8080/v1
+    description: development locally
+paths:
+  /doml2domlx:
+    post:
+      summary: Doml to Domlx.
+      description: Convert Doml to Domlx.
+      requestBody:
+        description: Doml file.
+        required: true
+        content:
+          text/plain:
+            schema:
+              type: string
+      responses:
+        '201':    # status code
+          description: A JSON array of user names
+          content:
+            application/xml:
+              schema:
+                type: string
+  /domlx2doml:
+    post:
+      summary: Domlx to Doml.
+      description: Convert Domlx to Doml.
+      requestBody:
+        description: Domlx file.
+        required: true
+        content:
+          application/xml:
+            schema:
+              type: string
+      responses:
+        '201':    # status code
+          description: A JSON array of user names
+          content:
+            text/plain:
+              schema:
+                type: string
