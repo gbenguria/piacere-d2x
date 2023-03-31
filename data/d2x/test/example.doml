@@ -1,0 +1,339 @@
+/*
+ * Here we show a simple example of a DOML Model to let user better understand the syntax and the structure of DOML v2.1.
+ * 
+ * In the following example, we want to describe a financial web application, which accesses a database.
+ * 
+ * Both Oracle DBMS and an nginx web server run on VMs provisioned by the AWS provider.
+ * 
+ * Such VMs are connected to a common network which also guarantees access to Internet,
+ * and each of them has an associated subnet. 
+ * 
+ * Both VMs should be located in "europe-south-1" region.
+ */
+doml doml_example1
+
+/* 
+ * We first have to define our application components in the Application Layer.
+ */
+application app_example1 {
+
+	/*
+	 * An Oracle DBMS: it provides a SQL interface to handle data. 
+	 */
+	dbms oracle {
+		
+		provides {
+			sql_interface
+		}
+		
+	} 
+	
+	/*
+	 * An nginx web server to run the web application.
+	 * As stated in the description above, it consumes the database interface.
+	 */
+	software_component nginx {
+		
+		consumes {
+			sql_interface
+		}
+		
+	}
+	
+}
+
+/*
+ * We then can describe the abstract infrastructure in the Infrastructure Layer.
+ */
+infrastructure infra_example1 {
+	
+	/*
+	 * We want to use a VM to host the nginx web server.
+	 * We want the VM to have the configuration we specify through the attributes.
+	 */
+	vm nginx_vm {
+		
+		arch "x86-64"
+		
+		os "Ubuntu-22.04.2-LTS"
+		
+		mem_mb 1024
+		
+		sto "16GB"
+		
+		cpu_count 1
+		
+		size "small"
+		
+		loc {
+			
+			region "eu-south-1"
+		
+		}
+		
+		/*
+		 * We want to define a network interface belonging to the subnet we're defining for this VM.
+		 * We decide to name such subnet "nginx_subnet".
+		 */ 
+		iface nginx_iface {
+			
+			belongs_to nginx_subnet
+		}
+		
+		/*
+		 * We also want to specify credentials to access the VM.
+		 * For security reasons, it's always a good practice to have separate credentials for each VM instance.
+		 * We decide to name credentials to access this VM "nginx_vm_credentials".
+		 */
+		credentials nginx_vm_credentials
+	}
+	
+	
+	/*
+	 * We want to use a VM to host the oracle DBMS.
+	 * Analogously to what we have done above for the nginx_vm, we can specify the VM configuration through attributes.
+	 */
+	vm oracle_vm {
+		
+		arch "x86-64"
+		
+		os "Ubuntu-22.04.2-LTS"
+		
+		mem_mb 1024
+		
+		sto "16GB"
+		
+		cpu_count 1
+		
+		size "small"
+		
+		loc {
+			
+			region "eu-south-1"
+		
+		}
+		
+		/*
+		 * We want to do the same as above.
+		 * We decide to name the subnet "oracle_subnet".
+		 */ 
+		iface oracle_iface {
+			
+			belongs_to oracle_subnet
+		}
+		
+		// As done above, we proceed to set credentials to access the VM.
+		credentials oracle_vm_credentials
+		
+	}
+	
+	/*
+	 * We now want to configure the network.
+	 * As stated above, we need to define two interconnected subnets.
+	 * Moreover, we need to define an Internet gateway since we want the network to have access to Internet.
+	 */
+	net common_network {
+		
+		/*
+		 * Definition of the first subnet, the one associated to the nginx_vm.
+		 * We want the subnet to be connected to the subnet associated to the oracle_vm.
+		 */
+		subnet nginx_subnet {
+			
+			protocol "TCP/IP"
+			
+			cidr "10.0.144.0/25"
+		}
+		
+		// This definition is analogous to what is shown above.
+		subnet oracle_subnet {
+			
+			protocol "TCP/IP"
+			
+			cidr "10.0.144.128/25"
+		}
+		
+		protocol "TCP/IP"
+		
+		cidr "10.0.144.0/24"
+		
+		igws {
+			
+			igw common_network_igw
+		}
+		
+	}
+	
+	/*
+	 * As specified above, we want to define credentials to guarantee access to VMs.
+	 * These credentials are used for the nginx_vm.
+	 * We're here specifying the key through the keyfile attribute instead of using it for specifying the keyfile path.
+	 */
+	key_pair nginx_vm_credentials {
+		
+		user "nginx_user"
+		
+		keyfile "AAAAB3NzaC1yc2EAAAADAQABAAABAQC63ZvocMhX1LsdUlhzqLNSsh/Wotk/EMfDfa9pBHC52NXv05uENTjd/LBj8PS5JXEr7rKG9Zpj2Kj/PA7Gu0X1BZMwAiNR2dKjw9K0HO6Ozj3elCA7WjjotiQcO+OLWefE1PUW8/BJjtjFD/qf6wJd8CwInH8cjpkccQQfA55IXXegQMm5qv2a/S2XBvMMzv1dzsCy5UPO7tiOz4RBfi56JK8o2mDR327yY7+goA0HQz5tSN1X98+vxLpTPD5qINEFfVk1yNmf/ls3C7EBZQFJ6tsHgl070ymdBLHccmDMEYktzBnc/IhNWMq7K4IxwgFfQ7YSzAAqMr1n04+3oUeB"
+		
+		algorithm "RSA"
+		
+		bits 4096
+	}
+	
+	// This definition is analogous to what we have shown above.
+	key_pair oracle_vm_credentials {
+		
+		user "oracle_user"
+		
+		keyfile "AAAAB3NzaC1yc2EAAAADAQABAAABAQCBiNSYpUJ9bCNhmFdEmCqF0WCW0f47SDN3T43nF5rDI06Ixuedk9+TlAUZudistB/RTlq0AaQmaZjBdQFkDvLiKnmEAB16eITQ/lz+eODcK5540E3Qd5jlq9DOy3s8eVaL8zg1zwaSktIJ/Y/jGyiy/MM1uobj/JNGNE++llYwh6/SjynGADo9bNcboJifLoU51lrJbyO6w7SJyeP28X46Dd6ob/GQwPAEZjhW+0U+K/JeDfIA1wYH6fC15K1pte9n57gd4RK+yRn7r45c0dP5M4gzZsZrXXaWRI/Dgbha08zSlKEzFdT7QcExMu+W6jGPZiHUSUAZJBxfRORHZ8iP"
+		
+		algorithm "RSA"
+		
+		bits 4096
+	}
+	
+	/*
+	 * We also want to secure access to our common network.
+	 * In order to do so, we describe the rules for such network through the definition of a security group.
+	 * 
+	 * Here are shown some of the most commonly used rules.
+	 */
+	security_group sec_group {
+		
+		egress icmp {
+			
+			protocol "ICMP"
+			
+			from_port -1
+			
+			to_port -1
+			
+			cidr ["0.0.0.0/0"]
+		}
+		
+		ingress ssh {
+			
+			protocol "TCP"
+			
+			from_port 22
+		
+			to_port 22
+			
+			cidr ["0.0.0.0/0"]
+		}
+		
+		ingress http {
+			
+			protocol "TCP"
+			
+			from_port 80
+			
+			to_port 80
+			
+			cidr ["0.0.0.0/0"]
+		}
+		
+		ingress https {
+			
+			protocol "TCP"
+			
+			from_port 443
+			
+			to_port 443
+			
+			cidr ["0.0.0.0/0"]
+		}
+		
+		// We want to specify that these rules apply to both the interfaces we defined for our VMs.
+		ifaces nginx_iface, oracle_iface
+		
+	}
+	
+}
+
+/*
+ * Now we have defined our abstract infrastructure and we're ready to deploy our application.
+ * Let's define the configuration for deployment.
+ */
+deployment config {
+ 	oracle -> oracle_vm,
+ 	nginx -> nginx_vm
+}
+ 
+// We specify the active deployment configuration. We only have one, but this step is always necessary.
+active deployment config
+ 
+/*
+ * We then need to define the concrete infrastructure in the Concrete Layer.
+ */
+concretizations {
+ 	
+ 	concrete_infrastructure concrete_example1 {
+ 		
+ 		/*
+ 		 * As stated in the description, we want to use AWS as a provider for our infrastructure.
+ 		 * Any further information regarding the provider itself can be specified through properties.
+ 		 * Here we have to describe the concrete components corresponding to the abstract ones defined in the Infrastructure Layer.
+ 		 */ 
+ 		provider aws {
+ 			
+ 			/*
+ 			 * We have three elements in the abstract infrastructure definition that need a concrete counterpart:
+ 			 * 	- The two VMs for Oracle DBMS and nginx web server
+ 			 * 	- The common network
+ 			 */
+ 			 
+ 			/*
+ 			 * We can always specify further information about the elements through their properties.
+ 			 */
+ 			vm concrete_nginx_vm {
+ 				
+ 				maps nginx_vm
+ 				
+ 				// Example of further information provided through properties.
+ 				properties {
+ 					vm_name "nginx"
+ 				}
+ 			}
+ 			
+ 			vm concrete_oracle_vm {
+ 				
+ 				maps oracle_vm
+ 				
+ 				properties {
+ 					vm_name "oracle"
+ 				}
+ 			}
+ 			
+ 			
+ 			net concrete_common_network {
+ 				
+ 				address "10.0.144.0/24"
+ 				
+ 				maps common_network
+ 			}
+ 			
+ 		}
+ 		
+ 	}
+ 	
+ 	// We specify the active concretization.
+ 	// Analogously to the deployment configurations, we only have one, but this step is always necessary.
+ 	active concrete_example1
+ 	
+ }
+ 
+optimization opt{
+	  	
+  	objectives {  		
+  		"availability" => max
+		"performance" => max
+  	}
+  	nonfunctional_requirements {	
+  		Req1 "Region" values "00EU" => "region";
+		Req2 "Provider" values "AMAZ" => "provider";
+		Req3 "elements" => "VM, VM";  		
+  	}
+  	
+ }
+

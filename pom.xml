@@ -12,6 +12,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <springdoc.version>1.6.14</springdoc.version>
         <swagger-ui.version>4.15.5</swagger-ui.version>
+		<openapiFileName>openapi.yaml</openapiFileName>
+        <tycho-version>2.7.3</tycho-version>
     </properties>
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -36,24 +38,114 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>src/main/resources/openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/${openapiFileName}</inputSpec>
                             <generatorName>spring</generatorName>
                             <apiPackage>eu.piacere.d2x.server.api</apiPackage>
                             <modelPackage>eu.piacere.d2x.server.model</modelPackage>
-                            <generateSupportingFiles>false</generateSupportingFiles>
+							<skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
+							<output>${project.basedir}</output>
+							<library>spring-boot</library>
+							<generateApis>true</generateApis>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateApiTests>true</generateApiTests>
+							<generateModels>true</generateModels>
+							<generateModelDocumentation>false</generateModelDocumentation>
+							<generateModelTests>true</generateModelTests>
+							<generateSupportingFiles>true</generateSupportingFiles>
                             <configOptions>
-                                <artifactVersion>1.0.0</artifactVersion>
-                                <modelPackage>eu.piacere.d2x.server.model</modelPackage>
-                                <groupId>eu.piacere.d2x</groupId>
-                                <basePackage>eu.piacere.d2x.server</basePackage>
-                                <invokerPackage>eu.piacere.d2x.server.api</invokerPackage>
-                                <apiPackage>eu.piacere.d2x.server.api</apiPackage>
-                                <artifactId>eu.piacere.d2x.server</artifactId>
+                                <artifactVersion>${project.version}</artifactVersion>
+                                <modelPackage>${project.artifactId}.model</modelPackage>
+                                <groupId>${project.groupId}</groupId>
+                                <basePackage>${project.artifactId}</basePackage>
+                                <invokerPackage>${project.artifactId}</invokerPackage>
+                                <apiPackage>${project.artifactId}.api</apiPackage>
+                                <artifactId>${project.artifactId}</artifactId>
                                 <artifactDescription>doml to domlx transformation</artifactDescription>
+								<async>false</async>
+								<configPackage>${project.artifactId}.configuration</configPackage>
+								<interfaceOnly>false</interfaceOnly>
+								<delegatePattern>true</delegatePattern>
+								<hideGenerationTimestamp>true</hideGenerationTimestamp>
+								<useTags>false</useTags>
+								<sourceFolder>src/gen/java</sourceFolder>
                             </configOptions>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.2.0</version>
+				<executions>
+					<execution>
+						<id>copy-openapi-json-resources</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<overwrite>true</overwrite>
+							<outputDirectory>${basedir}/src/main/resources/static</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}</directory>
+									<filtering>false</filtering>
+									<includes>
+										<include>openapi.yaml</include>
+									</includes>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>build-helper-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>add-source</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>add-source</goal>
+						</goals>
+						<configuration>
+							<sources>
+								<source>src/gen/java</source>
+							</sources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>repackage</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>eu.piacere.pmc.server.OpenAPI2SpringBoot</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+            <plugin>
+                <groupId>org.eclipse.tycho</groupId>
+                <artifactId>tycho-maven-plugin</artifactId>
+                <version>${tycho-version}</version>
+                <extensions>true</extensions>
             </plugin>
         </plugins>
     </build>
@@ -105,5 +197,47 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!--lombok-->
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>provided</scope>
+		</dependency>
+        <!--doml-->
+        <dependency>
+            <groupId>eu.piacere</groupId>
+            <artifactId>eu.piacere.doml</artifactId>
+            <version>0.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.piacere</groupId>
+            <artifactId>eu.piacere.doml.grammar</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <!-- java: cannot access org.eclipse.xtext.ISetup -->
+        <dependency>
+            <groupId>org.eclipse.xtext</groupId>
+            <artifactId>org.eclipse.xtext.util</artifactId>
+            <version>2.25.0</version>
+        </dependency>
     </dependencies>
+    <repositories>
+        <repository>
+            <id>eclipse-2022-12</id>
+            <url>http://download.eclipse.org/releases/2022-12</url>
+            <layout>p2</layout>
+        </repository>
+        <repository>
+            <id>doml repository</id>
+            <url>https://nginx.resources.piacere.digital.tecnalia.dev/repository</url>
+        </repository>
+    </repositories>
+    <profiles>
+		<profile>
+			<id>dev</id>
+			<properties>
+				<activatedProperties>dev</activatedProperties>
+			</properties>
+		</profile>
+	</profiles>
 </project>

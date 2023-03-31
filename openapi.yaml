@@ -1,14 +1,18 @@
-openapi: 3.0.0
+openapi: 3.0.2
 info:
   title: Doml to Domlx converter API
   description: It converts doml to domlx format and domlx to doml format
-  version: 0.1.9
+  version: 1.0.0
+  license:
+    name: Copyright © Piacere 2023
 servers:
-  - url: https://ci.piacere.digital.tecnalia.dev
+  - url: "/d2x/api/v1"
+    description: v1 api
+  - url: https://ci.piacere.digital.tecnalia.dev/d2x/api/v1
     description: Integration server
-  - url: http://d2x.192.168.56.1.nip.io/v1
+  - url: http://d2x.192.168.56.1.nip.io/d2x/api/v1
     description: local vagrant server
-  - url: http://d2x.localhost:8080/v1
+  - url: http://d2x.localhost:8080/d2x/api/v1
     description: development locally
 paths:
   /doml2domlx:

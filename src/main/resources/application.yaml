@@ -1,0 +1,8 @@
+server:
+  port: 8080
+  # servlet.context-path: /dx2/api/v1
+  forward-headers-strategy: FRAMEWORK
+
+spring.jackson:
+  date-format: eu.piacere.d2x.server.RFC3339DateFormat
+  serialization.WRITE_DATES_AS_TIMESTAMPS: false
