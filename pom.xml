@@ -214,12 +214,6 @@
             <artifactId>eu.piacere.doml.grammar</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-        <!-- java: cannot access org.eclipse.xtext.ISetup -->
-        <dependency>
-            <groupId>org.eclipse.xtext</groupId>
-            <artifactId>org.eclipse.xtext.util</artifactId>
-            <version>2.25.0</version>
-        </dependency>
     </dependencies>
     <repositories>
         <repository>
