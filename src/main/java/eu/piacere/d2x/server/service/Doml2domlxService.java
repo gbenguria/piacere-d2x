@@ -10,7 +10,6 @@ import eu.piacere.doml.doml.optimization.OptimizationPackage;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.URIConverter;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
@@ -22,14 +21,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import eu.piacere.doml.DomlStandaloneSetup;
 import org.eclipse.emf.common.util.URI;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+
+import java.io.*;
 import java.lang.invoke.MethodHandles;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.UUID;
-
+// import org.eclipse.xtext.util.ReflectionUtil;
+// import org.eclipse.xtext.xbase.lib.Functions.Function1;
 
 @Service
 public class Doml2domlxService implements Doml2domlxApiDelegate {
@@ -43,7 +42,8 @@ public class Doml2domlxService implements Doml2domlxApiDelegate {
     @Override
     public ResponseEntity<String> doml2domlxPost(String body) {
 
-        String ext = "doml";
+        String sourceExt = "doml";
+        String targetExt = "domlx";
 
         DomlStandaloneSetup.doSetup();
         if (!EPackage.Registry.INSTANCE.containsKey(CommonsPackage.eNS_URI)) {
@@ -68,24 +68,25 @@ public class Doml2domlxService implements Doml2domlxApiDelegate {
         String tmpDir = System.getProperty("java.io.tmpdir");
         // https://www.eclipse.org/forums/index.php/t/134790/
         // generate fake URI
-        String sourceURIFakeString = "file:///" + getUniqueFileName(tmpDir, ext);
+        String sourceURIFakeString = getUniqueFileName(tmpDir, sourceExt);
 
         // create inputStream from body
-        InputStream inputStream  = new URIConverter.ReadableInputStream(body);
+        InputStream inputStream  = new ByteArrayInputStream(body.getBytes());
 
         ResourceSet resourceSet = new ResourceSetImpl();
-        Resource inputResource = resourceSet.createResource(URI.createURI(sourceURIFakeString));
+
+        Resource inputResource = resourceSet.createResource(URI.createFileURI(sourceURIFakeString));
 
         try{
             inputResource.load(inputStream, null);
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>("Error while loading doml into ecore resource", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        String targetURIFakeString = "file:///" + getUniqueFileName(tmpDir, ext);
-
         logger.info("doml loaded into ecore resource");
-        String uriString = "file:///" + getUniqueFileName(System.getProperty("java.io.tmpdir"), ext);
+
+        String targetURIFakeString = getUniqueFileName(tmpDir, targetExt);
 
         Resource targetResource = resourceSet.createResource(URI.createFileURI(targetURIFakeString));
         try {
@@ -93,8 +94,9 @@ public class Doml2domlxService implements Doml2domlxApiDelegate {
             targetResource.getContents().add(EcoreUtil.copy(model));
         } catch (Exception e) {
             e.printStackTrace();
+            return new ResponseEntity<>("Error while creating domlx from ecore resource", HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        logger.info("domlx created into ecore resource");
+        logger.info("domlx created from ecore resource");
 
         // create outputStream from targetResource https://stackoverflow.com/a/1022434
         OutputStream outputStream = new OutputStream() {
@@ -113,8 +115,13 @@ public class Doml2domlxService implements Doml2domlxApiDelegate {
 
         try {
             targetResource.save(outputStream,null);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            // get stacktrace as string https://stackoverflow.com/a/1149712
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+            return new ResponseEntity<>("Error while loading domlx into string: \n" + e.getMessage() + "\nStackTrace:\n" + sw, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         logger.info("domlx loaded into string");
