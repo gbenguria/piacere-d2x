@@ -1,0 +1,4 @@
+networks:
+  traefik_network:
+    name: ${TRAEFIK_NETWORK_NAME:?err}
+    external: true

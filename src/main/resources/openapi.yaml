@@ -11,9 +11,9 @@ servers:
 - description: Integration server
   url: https://ci.piacere.digital.tecnalia.dev/d2x/api/v1
 - description: local vagrant server
-  url: http://d2x.192.168.56.1.nip.io/d2x/api/v1
+  url: https://d2x.192.168.56.1.nip.io/d2x/api/v1
 - description: development locally
-  url: http://d2x.localhost:8080/d2x/api/v1
+  url: http://localhost:8080/d2x/api/v1
 paths:
   /doml2domlx:
     post:

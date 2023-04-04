@@ -1,0 +1,5 @@
+services:
+  d2x:
+    build:
+      args:
+        BUILDKIT_INLINE_CACHE: 1 # For multistage docker

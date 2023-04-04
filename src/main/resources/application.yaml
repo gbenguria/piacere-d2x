@@ -1,7 +1,7 @@
 server:
   port: 8080
   # servlet.context-path: /dx2/api/v1
-  forward-headers-strategy: FRAMEWORK
+  forward-headers-strategy: framework
 
 spring.jackson:
   date-format: eu.piacere.d2x.server.RFC3339DateFormat

@@ -1,0 +1,11 @@
+services:
+  d2x:
+    restart: always
+    networks:
+      traefik_network:
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=${TRAEFIK_NETWORK_NAME:?err}"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:?err}-d2x.rule=Host(`d2x.${SERVER_HOST:?err}`)"
+      - "traefik.http.routers.${COMPOSE_PROJECT_NAME:?err}-d2x.entrypoints=${TRAEFIK_HTTPS_ENTRYPOINT_NAME:?err}"
+

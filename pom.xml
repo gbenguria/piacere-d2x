@@ -136,7 +136,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>eu.piacere.pmc.server.OpenAPI2SpringBoot</mainClass>
+							<mainClass>eu.piacere.d2x.server.OpenApiGeneratorApplication</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

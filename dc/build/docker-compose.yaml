@@ -1,0 +1,9 @@
+services:
+  d2x:
+    build:
+      context: ${D2X_BASE_PATH}.
+      dockerfile: Dockerfile
+      cache_from:
+        - ${DOCKER_REGISTRY_CACHE_PREFIX}/piacere/d2x:${DOCKER_REGISTRY_CACHE_VERSION:?err}
+      args:
+        - MAVEN_SETTINGS_URL=https://git.code.tecnalia.com/smartdatalab/public/cache-configurations/-/raw/main/maven/cache.euve.digital.tecnalia.dev/.settings.xml

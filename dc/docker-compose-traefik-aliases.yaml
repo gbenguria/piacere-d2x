@@ -1,0 +1,6 @@
+services:
+  traefik:
+    networks:
+      default:
+        aliases:
+          - d2x.${SERVER_HOST}
