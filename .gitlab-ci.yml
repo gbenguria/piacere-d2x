@@ -56,6 +56,8 @@ build-temp-docker-compose:
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ pull
     - docker-compose --env-file ./.env.piacere --project-directory ./ build
     - docker-compose --env-file ./.env.piacere --project-directory ./ push
+  tags:
+    - docker
 
 # Security jobs ------------------------
 

@@ -1,0 +1,6 @@
+services:
+  d2x:
+    build:
+      labels:
+        com.jfrog.artifactory.retention.maxCount: 6
+

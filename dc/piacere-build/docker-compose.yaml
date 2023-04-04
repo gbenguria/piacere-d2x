@@ -7,3 +7,5 @@ services:
         - ${IMAGE_D2X:?err}
       args:
         BUILDKIT_INLINE_CACHE: 1 # For multistage docker
+
+      # https://github.com/jfrog/artifactory-user-plugins/tree/master/cleanup/cleanDockerImages
