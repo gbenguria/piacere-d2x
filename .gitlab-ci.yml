@@ -68,6 +68,8 @@ build-temp-docker-compose:
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ config
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ build
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ push
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ config | grep image
+    - echo "D2X_IMAGE=$D2X_IMAGE"
   tags:
     - docker
 
