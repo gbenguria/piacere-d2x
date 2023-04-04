@@ -50,6 +50,8 @@ build-temp-docker-compose:
     - docker:dind
   variables:
     GIT_STRATEGY: recursive
+    DOCKER_BUILDKIT: 1
+    COMPOSE_DOCKER_CLI_BUILD: 1
     D2X_IMAGE: "$TMP_IMAGE_D2X"
     DOCKER_COMPOSE_PATH: "dc"
     DOCKER_COMPOSE_ENV_FILE_CACHE: ".env.piacere"
