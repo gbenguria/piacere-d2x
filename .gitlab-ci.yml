@@ -49,7 +49,9 @@ build-temp-docker-compose:
     # - docker:20.10.21-dind # not sure if this is the latest
     - docker:dind
   variables:
-    GIT_STRATEGY: recursive
+    GIT_DEPTH: 1
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SUBMODULE_DEPTH: 1
     DOCKER_BUILDKIT: 1
     COMPOSE_DOCKER_CLI_BUILD: 1
     D2X_IMAGE: "$TMP_IMAGE_D2X"
