@@ -58,6 +58,9 @@ build-temp-docker-compose:
   script:
     - cd $DOCKER_COMPOSE_PATH
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ pull || true
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ config
+    - docker --version
+    - cat -A ../Dockerfile
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ build
     - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ push
   tags:
