@@ -42,7 +42,10 @@ stages:
 # Build jobs ----------------------
 
 build-temp-docker-compose:
+  image: docker/compose:1.29.2
   stage: build
+  services:
+    - docker:20.10.21-dind
   variables:
     D2X_IMAGE: "$TMP_IMAGE_D2X"
     DOCKER_COMPOSE_PATH: "dc"
