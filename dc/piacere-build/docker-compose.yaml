@@ -1,0 +1,9 @@
+services:
+  d2x:
+    build:
+      context: ${D2X_BASE_PATH}.
+      dockerfile: Dockerfile
+      cache_from:
+        - ${IMAGE_D2X:?err}
+      args:
+        BUILDKIT_INLINE_CACHE: 1 # For multistage docker
