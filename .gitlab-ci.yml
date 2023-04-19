@@ -58,7 +58,6 @@ build-temp-docker-compose:
     DOCKER_COMPOSE_PATH: "dc"
     DOCKER_COMPOSE_ENV_FILE_CACHE: ".env.piacere"
     DOCKER_COMPOSE_ENV_FILE: ".env.piacere"
-    DOCKERFILE_PATH: "git/influxdb"
   before_script:
     - !reference [.artifactory-login]
   script:
@@ -87,3 +86,33 @@ security-trivy-d2x:
     - job: build-temp-docker-compose
     - job: generate-variables
       artifacts: true
+
+build-release-docker-compose:
+  # image: docker/compose:1.29.2 # this is too old
+  image: docker:23.0.1
+  stage: build
+  services:
+    # - docker:20.10.21-dind # not sure if this is the latest
+    - docker:dind
+  variables:
+    GIT_DEPTH: 1
+    GIT_SUBMODULE_STRATEGY: recursive
+    GIT_SUBMODULE_DEPTH: 1
+    DOCKER_BUILDKIT: 1
+    COMPOSE_DOCKER_CLI_BUILD: 1
+    DOCKER_COMPOSE_PATH: "dc"
+    DOCKER_COMPOSE_ENV_FILE_CACHE: ".env.piacere"
+    DOCKER_COMPOSE_ENV_FILE: ".env.release"
+  before_script:
+    - !reference [.artifactory-login]
+  script:
+    - apk add docker-compose
+    - cd $DOCKER_COMPOSE_PATH
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ pull || true
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE_CACHE --project-directory ./ config
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ build
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ push
+    - docker-compose --env-file $DOCKER_COMPOSE_ENV_FILE --project-directory ./ config | grep image
+  tags:
+    - docker
+  when: manual
