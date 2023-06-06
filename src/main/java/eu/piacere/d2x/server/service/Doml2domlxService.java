@@ -86,6 +86,11 @@ public class Doml2domlxService implements Doml2domlxApiDelegate {
 
         logger.info("doml loaded into ecore resource");
 
+        // print inputResource errors
+        for (Resource.Diagnostic domlError : inputResource.getErrors()) {
+            logger.error("Doml error: " + domlError.getMessage());
+        }
+
         String targetURIFakeString = getUniqueFileName(tmpDir, targetExt);
 
         Resource targetResource = resourceSet.createResource(URI.createFileURI(targetURIFakeString));
