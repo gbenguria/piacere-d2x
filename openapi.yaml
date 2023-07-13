@@ -51,3 +51,14 @@ paths:
             text/plain:
               schema:
                 type: string
+  /domlecore:
+    get:
+      summary: Doml ecore.
+      description: Get Doml ecore.
+      responses:
+        '200':    # status code
+          description: the ecore in xmi format
+          content:
+            application/xml:
+              schema:
+                type: string
