@@ -5,6 +5,6 @@ TRAEFIK_HTTPS_ENTRYPOINT_NAME=websecure
 ADMIN_USER=admin
 ADMIN_PASSWORD=projectPassword
 SERVER_HOST=192.168.56.1.nip.io
-COMPOSE_PROJECT_NAME=piacere-d2x-production
+COMPOSE_PROJECT_NAME=d2x
 D2X_BASE_PATH=../
 COMPOSE_FILE=docker-compose.yaml:docker-compose-traefik-network-external.yaml:build/docker-compose.yaml:build/inline-cache/docker-compose.yaml:build/image/docker-compose.yaml
