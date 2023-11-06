@@ -55,8 +55,8 @@ stages:
     DOCKER_BUILDKIT: 1
     COMPOSE_DOCKER_CLI_BUILD: 1
     DOCKER_COMPOSE_PATH: "."
-    DOCKER_COMPOSE_ENV_FILE_CACHE: ".env.piacere"
-    DOCKER_COMPOSE_ENV_FILE: ".env.piacere"
+    DOCKER_COMPOSE_ENV_FILE_CACHE: ".envs/global/release"
+    DOCKER_COMPOSE_ENV_FILE: ".envs/global/release"
   before_script:
     - !reference [.artifactory-login]
   script:
