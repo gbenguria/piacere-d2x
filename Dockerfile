@@ -11,7 +11,7 @@ if [ -n "$MAVEN_SETTINGS_URL" ]; then
 fi
 EOF
 
-FROM maven:3.8.1-jdk-11 as builder
+FROM maven:3.8.1-openjdk-17 as builder
 # copy the config file from the previous stage to tmp
 COPY --from=cache /home/curl_user/config /tmp/
 RUN <<EOF
@@ -48,7 +48,7 @@ COPY openapi.yaml .openapi-generator-ignore /code/
 RUN mvn package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.test.skip=true \
     && mv target/eu.piacere.d2x.server-*.jar /app.jar
 
-FROM openjdk:11-slim AS prod
+FROM openjdk:17-slim AS prod
 
 WORKDIR /root
 
